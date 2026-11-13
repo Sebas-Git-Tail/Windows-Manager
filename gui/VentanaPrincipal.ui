@@ -19,6 +19,17 @@
        <property name="spacing"><number>4</number></property>
       </widget>
      </item>
+     <item>
+      <widget class="QPushButton" name="botonActualizarYtdlp">
+       <property name="text"><string>Actualizar yt-dlp</string></property>
+       <property name="toolTip"><string>yt-dlp se actualiza solo una vez por día. Si YouTube dejó de bajar, probá actualizarlo ahora.</string></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="etiquetaVersion">
+       <property name="alignment"><set>Qt::AlignmentFlag::AlignCenter</set></property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -29,6 +40,8 @@
      <item>
       <widget class="QLabel" name="etiquetaAviso">
        <property name="wordWrap"><bool>true</bool></property>
+       <property name="openExternalLinks"><bool>true</bool></property>
+       <property name="textFormat"><enum>Qt::TextFormat::RichText</enum></property>
       </widget>
      </item>
      <item>

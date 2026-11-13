@@ -1,11 +1,15 @@
 #include "VentanaPrincipal.h"
 #include "ui_VentanaPrincipal.h"
 
+#include "Actualizaciones.h"
+#include "ConfigServidor.h"
 #include "Herramientas.h"
 #include "PaginaDescargas.h"
 #include "PaginaRespaldo.h"
 
+#include <QApplication>
 #include <QCloseEvent>
+#include <QUrl>
 #include <QMessageBox>
 #include <QPixmap>
 #include <QPushButton>
@@ -40,13 +44,59 @@ VentanaPrincipal::VentanaPrincipal(QWidget *parent)
     connect(musica, &PaginaDescargas::ocupacionCambiada, this, &VentanaPrincipal::actualizarEnergia);
     connect(respaldo, &PaginaRespaldo::ocupacionCambiada, this, &VentanaPrincipal::actualizarEnergia);
 
+    ui->etiquetaAviso->hide();
     const QStringList faltan = Herramientas::faltantes();
-    if (!faltan.isEmpty()) {
-        ui->etiquetaAviso->setText(tr("× Faltan programas en la carpeta «herramientas»: %1").arg(faltan.join(QStringLiteral(", "))));
-        ui->etiquetaAviso->show();
-    } else {
-        ui->etiquetaAviso->hide();
+    if (!faltan.isEmpty())
+        avisar(tr("× Faltan programas en la carpeta «herramientas»: %1").arg(faltan.join(QStringLiteral(", ")).toHtmlEscaped()));
+
+    ui->etiquetaVersion->setText(tr("Versión %1").arg(QApplication::applicationVersion()));
+    connect(ui->botonActualizarYtdlp, &QPushButton::clicked, this, &VentanaPrincipal::actualizarYtDlp);
+
+    // Datos del servidor (IPs, carpeta de respaldos) desde servidor.json, una vez por día
+    ConfigServidor::instancia().actualizar();
+
+    // ¿Hay una versión nueva en GitHub? (una vez por día)
+    auto *actualizaciones = new Actualizaciones(QStringLiteral("Sebas-Git-Tail/Windows-Manager"), this);
+    connect(actualizaciones, &Actualizaciones::hayVersionNueva, this, [this](const QString &version, const QUrl &url) {
+        avisar(tr("Hay una versión nueva de Windows-Manager (%1): <a href=\"%2\">descargarla</a>.")
+                   .arg(version.toHtmlEscaped(), url.toString(QUrl::FullyEncoded).toHtmlEscaped()));
+    });
+    actualizaciones->comprobar();
+}
+
+// Aviso arriba de la página (se suman si hay más de uno)
+void VentanaPrincipal::avisar(const QString &html)
+{
+    const QString actual = ui->etiquetaAviso->isVisible() ? ui->etiquetaAviso->text() : QString();
+    ui->etiquetaAviso->setText(actual.isEmpty() ? html : actual + QStringLiteral("<br>") + html);
+    ui->etiquetaAviso->show();
+}
+
+// yt-dlp se actualiza solo una vez por día antes de descargar; esto lo fuerza ahora
+void VentanaPrincipal::actualizarYtDlp()
+{
+    if (procesoYtDlp.state() != QProcess::NotRunning || videos->ocupada() || musica->ocupada()) {
+        avisar(tr("Esperá a que terminen las descargas para actualizar yt-dlp."));
+        return;
     }
+    ui->botonActualizarYtdlp->setEnabled(false);
+    ui->botonActualizarYtdlp->setText(tr("Actualizando…"));
+    procesoYtDlp.setProcessChannelMode(QProcess::MergedChannels);
+    procesoYtDlp.setProcessEnvironment(Herramientas::ambiente());
+    connect(&procesoYtDlp, &QProcess::finished, this, [this](int codigo, QProcess::ExitStatus estado) {
+        procesoYtDlp.disconnect(this);
+        ui->botonActualizarYtdlp->setEnabled(true);
+        ui->botonActualizarYtdlp->setText(tr("Actualizar yt-dlp"));
+        const QString salida = QString::fromLocal8Bit(procesoYtDlp.readAll()).trimmed();
+        if (estado == QProcess::NormalExit && codigo == 0) {
+            Herramientas::marcarYtDlpActualizado();
+            const QString ultima = salida.section(u'\n', -1).trimmed();
+            QMessageBox::information(this, windowTitle(), ultima.isEmpty() ? tr("yt-dlp está actualizado.") : ultima);
+        } else {
+            QMessageBox::warning(this, windowTitle(), tr("No se pudo actualizar yt-dlp:\n%1").arg(salida.right(600)));
+        }
+    });
+    procesoYtDlp.start(Herramientas::programa(QStringLiteral("yt-dlp.exe")), {QStringLiteral("--update")});
 }
 
 VentanaPrincipal::~VentanaPrincipal()

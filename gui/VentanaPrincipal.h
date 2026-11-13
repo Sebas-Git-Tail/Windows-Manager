@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <QProcess>
 #include <QWidget>
 
 namespace Ui { class VentanaPrincipal; }
@@ -21,10 +22,13 @@ protected:
 
 private:
     void actualizarEnergia();
+    void actualizarYtDlp();
+    void avisar(const QString &html);
     bool hayTarea() const;
 
     Ui::VentanaPrincipal *ui;
     PaginaDescargas *videos;
     PaginaDescargas *musica;
     PaginaRespaldo *respaldo;
+    QProcess procesoYtDlp;
 };
