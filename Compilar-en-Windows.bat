@@ -5,7 +5,7 @@ rem   CARPETA_QT      Qt para MinGW (la que tiene bin\windeployqt.exe)
 rem   CARPETA_MINGW   MinGW (la que tiene bin\g++.exe)
 rem   CARPETA_CMAKE   CMake (la que tiene bin\cmake.exe)
 rem   CARPETA_NINJA   la que tiene ninja.exe
-rem   SALIDA          donde se crea la carpeta Windows-Manager
+rem   SALIDA          donde se crea la carpeta Windows-Manager (normalmente la carpeta Salida del proyecto)
 setlocal
 set "QT=%~1"
 set "MINGW=%~2"

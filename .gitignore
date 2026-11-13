@@ -33,3 +33,6 @@ log.txt
 
 # Carpetas de distribución armadas (se publican como Release)
 /Windows-Manager/
+
+# Lo compilado (APK, paquetes, .tar para Windows)
+/Salida/
