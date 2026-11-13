@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PaginaDescargas</class>
+ <widget class="QWidget" name="PaginaDescargas">
+  <layout class="QVBoxLayout" name="layoutPagina">
+   <property name="leftMargin"><number>0</number></property>
+   <property name="topMargin"><number>0</number></property>
+   <property name="rightMargin"><number>0</number></property>
+   <property name="bottomMargin"><number>0</number></property>
+   <item>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="frameShape"><enum>QFrame::Shape::NoFrame</enum></property>
+     <property name="horizontalScrollBarPolicy"><enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum></property>
+     <property name="widgetResizable"><bool>true</bool></property>
+     <widget class="QWidget" name="contenido">
+      <layout class="QVBoxLayout" name="layoutContenido">
+       <item>
+        <widget class="QGroupBox" name="grupoUrls">
+         <property name="title"><string>URLs (una por línea)</string></property>
+         <layout class="QVBoxLayout" name="layoutUrls">
+          <item>
+           <widget class="QPlainTextEdit" name="editUrls">
+            <property name="maximumHeight"><number>90</number></property>
+            <property name="placeholderText"><string>https://www.youtube.com/watch?v=...</string></property>
+            <property name="tabChangesFocus"><bool>true</bool></property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="layoutUrlsBotones">
+            <item>
+             <widget class="QPushButton" name="botonPegar">
+              <property name="text"><string>Pegar</string></property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botonYoutubeMusic">
+              <property name="text"><string>Abrir YouTube Music</string></property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="grupoOpciones" native="true">
+         <layout class="QVBoxLayout" name="layoutOpciones">
+          <property name="leftMargin"><number>0</number></property>
+          <property name="rightMargin"><number>0</number></property>
+          <item>
+           <widget class="QWidget" name="filaPlataforma" native="true">
+            <layout class="QHBoxLayout" name="layoutPlataforma" stretch="0,1">
+             <property name="leftMargin"><number>0</number></property>
+             <property name="topMargin"><number>0</number></property>
+             <property name="rightMargin"><number>0</number></property>
+             <property name="bottomMargin"><number>0</number></property>
+             <item>
+              <widget class="QLabel" name="etiquetaPlataforma">
+               <property name="text"><string>Plataforma:</string></property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="comboPlataforma">
+               <item><property name="text"><string>YouTube (va a Movies/Yt-dlp)</string></property></item>
+               <item><property name="text"><string>Redes sociales</string></property></item>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="filaCarpeta" native="true">
+            <layout class="QHBoxLayout" name="layoutCarpeta" stretch="0,1,0">
+             <property name="leftMargin"><number>0</number></property>
+             <property name="topMargin"><number>0</number></property>
+             <property name="rightMargin"><number>0</number></property>
+             <property name="bottomMargin"><number>0</number></property>
+             <item>
+              <widget class="QLabel" name="etiquetaCarpeta">
+               <property name="text"><string>Guardar en:</string></property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="editCarpeta"/>
+             </item>
+             <item>
+              <widget class="QPushButton" name="botonElegirCarpeta">
+               <property name="text"><string>Elegir…</string></property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="checkPlaylist">
+            <property name="text"><string>Bajar la playlist completa</string></property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="checkCookies">
+            <property name="text"><string>Usar cookies del navegador (LibreWolf o Firefox)</string></property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="layoutBotones">
+         <item>
+          <widget class="QPushButton" name="botonDescargar">
+           <property name="text"><string>Descargar</string></property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="botonCancelar">
+           <property name="enabled"><bool>false</bool></property>
+           <property name="text"><string>Cancelar</string></property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QProgressBar" name="barraArchivo"/>
+       </item>
+       <item>
+        <widget class="QProgressBar" name="barraTotal">
+         <property name="format"><string>%v de %m</string></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="etiquetaEstado">
+         <property name="wordWrap"><bool>true</bool></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="grupoDescargados">
+         <property name="title"><string>Videos descargados</string></property>
+         <layout class="QVBoxLayout" name="layoutDescargados">
+          <item>
+           <widget class="QListWidget" name="listaVideos">
+            <property name="minimumHeight"><number>140</number></property>
+            <property name="iconSize"><size><width>64</width><height>64</height></size></property>
+            <property name="wordWrap"><bool>true</bool></property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="layoutAcciones">
+            <item>
+             <widget class="QPushButton" name="botonVer">
+              <property name="enabled"><bool>false</bool></property>
+              <property name="text"><string>Ver</string></property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botonAbrirCarpeta">
+              <property name="enabled"><bool>false</bool></property>
+              <property name="text"><string>Abrir carpeta</string></property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botonPapelera">
+              <property name="enabled"><bool>false</bool></property>
+              <property name="text"><string>A la papelera</string></property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPlainTextEdit" name="registro">
+         <property name="minimumHeight"><number>110</number></property>
+         <property name="readOnly"><bool>true</bool></property>
+         <property name="placeholderText"><string>Avisos</string></property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

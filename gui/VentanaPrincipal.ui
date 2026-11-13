@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>VentanaPrincipal</class>
+ <widget class="QWidget" name="VentanaPrincipal">
+  <property name="geometry"><rect><x>0</x><y>0</y><width>960</width><height>740</height></rect></property>
+  <property name="windowTitle"><string>Windows-Manager</string></property>
+  <layout class="QHBoxLayout" name="layoutVentana" stretch="0,1">
+   <item>
+    <layout class="QVBoxLayout" name="layoutLateral">
+     <item>
+      <widget class="QLabel" name="etiquetaLogo">
+       <property name="alignment"><set>Qt::AlignmentFlag::AlignCenter</set></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QListWidget" name="listaSecciones">
+       <property name="minimumSize"><size><width>200</width><height>0</height></size></property>
+       <property name="maximumSize"><size><width>220</width><height>16777215</height></size></property>
+       <property name="spacing"><number>4</number></property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="layoutContenido">
+     <item>
+      <widget class="QLabel" name="etiquetaTitulo"/>
+     </item>
+     <item>
+      <widget class="QLabel" name="etiquetaAviso">
+       <property name="wordWrap"><bool>true</bool></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QStackedWidget" name="paginas"/>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

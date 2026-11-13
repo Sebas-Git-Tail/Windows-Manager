@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PaginaRespaldo</class>
+ <widget class="QWidget" name="PaginaRespaldo">
+  <layout class="QVBoxLayout" name="layoutPagina">
+   <item>
+    <widget class="QLabel" name="etiquetaDescripcion">
+     <property name="wordWrap"><bool>true</bool></property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="grupoPersona">
+     <property name="title"><string>¿De quién es esta computadora?</string></property>
+     <layout class="QVBoxLayout" name="layoutPersona">
+      <item>
+       <widget class="QLineEdit" name="editPersona">
+        <property name="placeholderText"><string>Tu nombre, en una palabra</string></property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="grupoComputadora">
+     <property name="title"><string>Nombre de la computadora</string></property>
+     <layout class="QVBoxLayout" name="layoutComputadora">
+      <item>
+       <widget class="QLineEdit" name="editComputadora"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="grupoContrasena">
+     <property name="title"><string>Contraseña SSH del servidor</string></property>
+     <layout class="QVBoxLayout" name="layoutContrasena">
+      <item>
+       <widget class="QLineEdit" name="editContrasena">
+        <property name="echoMode"><enum>QLineEdit::EchoMode::Password</enum></property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkSimular">
+     <property name="text"><string>Solo simular (no copia ni borra nada)</string></property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="layoutBotones">
+     <item>
+      <widget class="QPushButton" name="botonEmpezar">
+       <property name="text"><string>Empezar respaldo</string></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="botonCancelar">
+       <property name="enabled"><bool>false</bool></property>
+       <property name="text"><string>Cancelar</string></property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QProgressBar" name="barraProgreso"/>
+   </item>
+   <item>
+    <widget class="QLabel" name="etiquetaArchivo"/>
+   </item>
+   <item>
+    <widget class="QLabel" name="etiquetaEstado">
+     <property name="wordWrap"><bool>true</bool></property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPlainTextEdit" name="registro">
+     <property name="readOnly"><bool>true</bool></property>
+     <property name="placeholderText"><string>Avisos</string></property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

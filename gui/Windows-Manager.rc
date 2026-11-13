@@ -1,0 +1,26 @@
+// Ícono del .exe (lo que se ve en el Explorador) y datos de la pestaña «Detalles»
+#include <winver.h>
+
+1 ICON "Logo.ico"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION 1,0,0,0
+PRODUCTVERSION 1,0,0,0
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "0C0A04B0"
+        BEGIN
+            VALUE "FileDescription", "Windows-Manager"
+            VALUE "FileVersion", "1.0.0"
+            VALUE "InternalName", "Windows-Manager"
+            VALUE "OriginalFilename", "Windows-Manager.exe"
+            VALUE "ProductName", "Windows-Manager"
+            VALUE "ProductVersion", "1.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0C0A, 1200
+    END
+END
