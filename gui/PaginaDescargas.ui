@@ -101,6 +101,12 @@
             <property name="text"><string>Usar cookies del navegador (LibreWolf o Firefox)</string></property>
            </widget>
           </item>
+          <item>
+           <widget class="QCheckBox" name="checkPistas">
+            <property name="text"><string>Elegir calidad, audio y subtítulos</string></property>
+            <property name="toolTip"><string>Antes de descargar busca qué calidades, códecs, subtítulos y pistas de audio (idiomas) ofrece el video y deja elegir. Todo queda dentro de un archivo MKV.</string></property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>

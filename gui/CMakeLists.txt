@@ -17,6 +17,8 @@ add_executable(Windows-Manager WIN32
     Herramientas.cpp Herramientas.h
     VentanaPrincipal.cpp VentanaPrincipal.h VentanaPrincipal.ui
     PaginaDescargas.cpp PaginaDescargas.h PaginaDescargas.ui
+    DialogoPistas.cpp DialogoPistas.h DialogoPistas.ui
+    ConsultaVideo.cpp ConsultaVideo.h
     PaginaRespaldo.cpp PaginaRespaldo.h PaginaRespaldo.ui
     ResumenSimulacion.cpp ResumenSimulacion.h
     Recursos.qrc

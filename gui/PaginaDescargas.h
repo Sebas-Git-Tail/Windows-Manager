@@ -1,8 +1,11 @@
 // Páginas «Descargar Vídeos» y «Descargar Música»: la misma página con dos modos. Hace lo
 // mismo que Logica/Descargar.sh en el Manager de Linux: las mismas opciones de yt-dlp y una
-// URL por vez, leyendo el avance de su salida.
+// URL por vez, leyendo el avance de su salida. En Vídeos, si se pide, antes consulta qué
+// calidades, códecs, pistas de audio y subtítulos ofrece cada URL y deja elegir (DialogoPistas).
 
 #pragma once
+
+#include "ConsultaVideo.h"
 
 #include <QProcess>
 #include <QStringList>
@@ -37,6 +40,9 @@ private slots:
     void moverAPapelera();
 
 private:
+    void empezar();
+    void siguienteConsulta();
+    void terminoConsulta(int codigo, QProcess::ExitStatus estado);
     void siguienteUrl();
     void procesarLinea(const QString &linea);
     void registrarTerminados(const QString &miniatura);
@@ -48,6 +54,7 @@ private:
     QString archivoRutas() const;
     QString ultimaMiniatura() const;
     QString navegadorCookies() const;
+    QString carpetaSubtitulos() const;
 
     Ui::PaginaDescargas *ui;
     Tipo tipo;
@@ -58,6 +65,10 @@ private:
     int listas = 0;
     int fallidas = 0;
     bool actualizando = false;
+    bool consultando = false;       // paso previo: «yt-dlp -J» de cada URL
+    QStringList urlsPedidas;        // todas las URL de esta descarga (la consulta no las consume)
+    OfertaVideo oferta;             // lo que ofrecen (suma de las consultas)
+    Eleccion eleccion;              // lo elegido en el diálogo (vacío: lo de siempre, en MKV)
     bool cancelado = false;
     QString archivoActual;
     QString mensajeError;
