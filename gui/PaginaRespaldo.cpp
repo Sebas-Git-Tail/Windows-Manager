@@ -1,9 +1,11 @@
 #include "PaginaRespaldo.h"
 #include "ui_PaginaRespaldo.h"
 
+#include "ConfigServidor.h"
 #include "Herramientas.h"
 
 #include <QDir>
+#include <QFile>
 #include <QFontMetrics>
 #include <QMessageBox>
 #include <QPushButton>
@@ -15,10 +17,11 @@
 
 namespace {
 
-// Los mismos datos que Common/Servidor.sh. Primero la red de casa y, si no contesta, Tailscale.
-const QStringList Servidores{QStringLiteral("192.168.100.14"), QStringLiteral("100.101.213.44")};
-const QString Usuario = QStringLiteral("sebastian");
-const QString CarpetaRespaldos = QStringLiteral("/home/sebastian/Respaldos/");
+// Datos del servidor: los de servidor.json (ConfigServidor, igual que Common/Servidor.sh en Linux).
+// Primero la red de casa y, si no contesta, Tailscale.
+QStringList servidores() { return ConfigServidor::instancia().ipsSsh(); }
+QString usuario() { return ConfigServidor::instancia().usuario(); }
+QString carpetaRespaldos() { return ConfigServidor::instancia().carpetaRespaldos(); }
 const QString ClaveNombre = QStringLiteral("respaldo/nombre");
 const QString ClaveComputadora = QStringLiteral("respaldo/computadora");
 const QString ClaveDestinoConfirmado = QStringLiteral("respaldo/destinoConfirmado");
@@ -114,7 +117,7 @@ QString PaginaRespaldo::computadora() const
 // La carpeta de destino lleva la persona y el nombre de la computadora
 QString PaginaRespaldo::rutaEnServidor() const
 {
-    return CarpetaRespaldos + persona() + u'/' + computadora() + u'/';
+    return carpetaRespaldos() + persona() + u'/' + computadora() + u'/';
 }
 
 // Se guardan apenas se escriben, para que sigan ahí al volver a abrir la app. Haberlos escrito
@@ -231,7 +234,7 @@ void PaginaRespaldo::empezar()
 // Prueba el puerto de SSH de cada dirección, en orden
 void PaginaRespaldo::probarServidor(int indice)
 {
-    if (cancelado || indice >= Servidores.size()) {
+    if (cancelado || indice >= servidores().size()) {
         ui->etiquetaEstado->setText(cancelado ? tr("Respaldo cancelado.")
                                               : tr("× No se encontró el servidor (ni en la red de casa ni por Tailscale)."));
         contrasena.clear();
@@ -255,29 +258,38 @@ void PaginaRespaldo::probarServidor(int indice)
         prueba->deleteLater();
         prueba = nullptr;
         if (cancelado)
-            probarServidor(Servidores.size());
+            probarServidor(servidores().size());
         else
-            copiar(Servidores.at(indice));
+            copiar(servidores().at(indice));
     });
     connect(prueba, &QTcpSocket::errorOccurred, this, fallo);
     connect(espera, &QTimer::timeout, this, fallo);
-    prueba->connectToHost(Servidores.at(indice), 22);
+    prueba->connectToHost(servidores().at(indice), 22);
     espera->start(EsperaServidorMs);
 }
 
 void PaginaRespaldo::copiar(const QString &servidor)
 {
-    if (servidor != Servidores.constFirst())
+    if (servidor != servidores().constFirst())
         anotar(tr("Conectando por Tailscale (%1).").arg(servidor));
     const bool simular = ui->checkSimular->isChecked();
     const QString origen = Herramientas::rutaMsys(QDir::homePath()) + u'/';
     anotar(tr("%1 → %2:%3").arg(QDir::toNativeSeparators(QDir::homePath()), servidor, rutaEnServidor()));
     ui->etiquetaEstado->setText(simular ? tr("Simulando el respaldo (no cambia nada)…") : tr("Respaldando…"));
 
-    // accept-new: la primera vez acepta la huella del servidor y después la exige igual.
-    // Una sola contraseña por intento: si está mal, no se insiste contra el servidor.
-    const QString huellas = Herramientas::rutaMsys(QDir(Herramientas::datos()).filePath(QStringLiteral("known_hosts")));
-    const QString ssh = QStringLiteral("\"%1\" -F none -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=\"%2\" "
+    // Huella fija: solo se conecta si del otro lado está el servidor de verdad (las huellas vienen
+    // compiladas en el programa, ConfigServidor::huellasSsh). Antes se aceptaba cualquiera la primera
+    // vez, y desde una red ajena otro equipo podía hacerse pasar por el servidor y recibir la contraseña.
+    // HostKeyAlias: la huella vale aunque cambie la IP. Una sola contraseña por intento.
+    const QString rutaHuellas = QDir(Herramientas::datos()).filePath(QStringLiteral("huellas-servidor"));
+    {
+        QFile archivo(rutaHuellas);
+        if (archivo.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+            archivo.write(ConfigServidor::huellasSsh({QStringLiteral("servidor-respaldos")}).join(u'\n').toUtf8() + '\n');
+    }
+    const QString huellas = Herramientas::rutaMsys(rutaHuellas);
+    const QString ssh = QStringLiteral("\"%1\" -F none -o StrictHostKeyChecking=yes -o HostKeyAlias=servidor-respaldos "
+                                       "-o UpdateHostKeys=no -o UserKnownHostsFile=\"%2\" "
                                        "-o PubkeyAuthentication=no -o PreferredAuthentications=password,keyboard-interactive "
                                        "-o NumberOfPasswordPrompts=1 -o ConnectTimeout=10")
                             .arg(Herramientas::rutaMsys(Herramientas::programa(QStringLiteral("ssh.exe"))), huellas);
@@ -300,7 +312,7 @@ void PaginaRespaldo::copiar(const QString &servidor)
         argumentos << QStringLiteral("--dry-run") << QStringLiteral("--itemize-changes") << QStringLiteral("--stats")
                    << QStringLiteral("--info=del1");
     }
-    argumentos << origen << QStringLiteral("%1@%2:%3").arg(Usuario, servidor, rutaEnServidor());
+    argumentos << origen << QStringLiteral("%1@%2:%3").arg(usuario(), servidor, rutaEnServidor());
 
     // ssh le pide la contraseña a askpass, y askpass la toma de esta variable: no aparece en la
     // lista de procesos ni queda guardada
@@ -376,6 +388,8 @@ void PaginaRespaldo::terminoProceso(int codigo, QProcess::ExitStatus estado)
     habilitarFormulario(true);
     ui->etiquetaArchivo->clear();
 
+    const bool huellaDistinta = errorConexion.contains(QStringLiteral("Host key verification"))
+                                || errorConexion.contains(QStringLiteral("host key"), Qt::CaseInsensitive);
     const bool contrasenaMala = sinDatos && errorConexion.contains(QStringLiteral("Permission denied"));
     if (cancelado || estado == QProcess::CrashExit) {
         ui->etiquetaEstado->setText(tr("Respaldo cancelado."));
@@ -392,6 +406,10 @@ void PaginaRespaldo::terminoProceso(int codigo, QProcess::ExitStatus estado)
             : tr("Terminó, pero algunos archivos no se pudieron copiar (ver los avisos)."));
         if (ui->checkSimular->isChecked())
             mostrarResumen();
+    } else if (huellaDistinta) {
+        ui->barraProgreso->hide();
+        ui->etiquetaEstado->setText(tr("× Del otro lado contestó un equipo que no es el servidor (la huella no coincide). "
+                                       "No se mandó la contraseña. Si el servidor se reinstaló, hace falta una versión nueva del programa."));
     } else if (contrasenaMala) {
         ui->barraProgreso->hide();
         ui->etiquetaEstado->setText(tr("× Contraseña incorrecta, volvé a escribirla."));
