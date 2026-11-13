@@ -10,6 +10,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     QApplication::setApplicationName(QStringLiteral("Windows-Manager"));
+    QApplication::setApplicationVersion(QStringLiteral(VERSION_PROGRAMA));
     QApplication::setStyle(QStringLiteral("Fusion"));
     QApplication::setWindowIcon(QIcon(QStringLiteral(":/Logo.png")));
 
