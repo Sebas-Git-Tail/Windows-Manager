@@ -27,6 +27,7 @@ SolidCompression=yes
 WizardStyle=modern
 ; Si la app está abierta, la cierra antes de reemplazar los archivos
 CloseApplications=yes
+RestartApplications=no
 
 [Languages]
 Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
@@ -42,7 +43,8 @@ Name: "{userprograms}\Windows-Manager"; Filename: "{app}\Windows-Manager.exe"
 Name: "{userdesktop}\Windows-Manager"; Filename: "{app}\Windows-Manager.exe"; Tasks: escritorio
 
 [Run]
-Filename: "{app}\Windows-Manager.exe"; Description: "Abrir Windows-Manager"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\Windows-Manager.exe"; Description: "Abrir Windows-Manager"; Flags: nowait postinstall
+; Sin skipifsilent: cuando la app se actualiza sola (instalador /SILENT) se vuelve a abrir al terminar
 
 [UninstallDelete]
 ; yt-dlp guarda su caché al lado; los respaldos y ajustes del usuario (en AppData) no se tocan

@@ -1,7 +1,7 @@
 #include "VentanaPrincipal.h"
 #include "ui_VentanaPrincipal.h"
 
-#include "Actualizaciones.h"
+#include "PanelApps.h"
 #include "ConfigServidor.h"
 #include "Herramientas.h"
 #include "PaginaDescargas.h"
@@ -30,7 +30,10 @@ VentanaPrincipal::VentanaPrincipal(QWidget *parent)
     ui->etiquetaTitulo->setFont(fuente);
     ui->etiquetaLogo->setPixmap(QPixmap(QStringLiteral(":/Logo.png")));
 
-    for (QWidget *pagina : {static_cast<QWidget *>(videos), static_cast<QWidget *>(musica), static_cast<QWidget *>(respaldo)}) {
+    // «Apps»: actualizar Windows-Manager e instalar las otras apps (comun/apps)
+    auto *paginaApps = new apps::PanelApps(QStringLiteral("Windows-Manager"), this);
+    for (QWidget *pagina : {static_cast<QWidget *>(videos), static_cast<QWidget *>(musica), static_cast<QWidget *>(respaldo),
+                            static_cast<QWidget *>(paginaApps)}) {
         ui->paginas->addWidget(pagina);
         ui->listaSecciones->addItem(pagina->windowTitle());
     }
@@ -55,13 +58,8 @@ VentanaPrincipal::VentanaPrincipal(QWidget *parent)
     // Datos del servidor (IPs, carpeta de respaldos) desde servidor.json, una vez por día
     ConfigServidor::instancia().actualizar();
 
-    // ¿Hay una versión nueva en GitHub? (una vez por día)
-    auto *actualizaciones = new Actualizaciones(QStringLiteral("Sebas-Git-Tail/Windows-Manager"), this);
-    connect(actualizaciones, &Actualizaciones::hayVersionNueva, this, [this](const QString &version, const QUrl &url) {
-        avisar(tr("Hay una versión nueva de Windows-Manager (%1): <a href=\"%2\">descargarla</a>.")
-                   .arg(version.toHtmlEscaped(), url.toString(QUrl::FullyEncoded).toHtmlEscaped()));
-    });
-    actualizaciones->comprobar();
+    // ¿Hay una versión nueva? (una vez por día): pregunta y la instala sola
+    apps::avisarActualizaciones(this, QStringLiteral("Windows-Manager"));
 }
 
 // Aviso arriba de la página (se suman si hay más de uno)

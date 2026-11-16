@@ -2,7 +2,7 @@
 # Se compila con ..\Compilar-en-Windows.bat (Qt 6 y MinGW). Los .ui se editan con Qt Designer.
 
 cmake_minimum_required(VERSION 3.21)
-project(WindowsManager VERSION 1.1.0 LANGUAGES C CXX RC)
+project(WindowsManager VERSION 1.2.0 LANGUAGES C CXX RC)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -16,6 +16,7 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets Network)
 # yt-dlp, resumen de rsync, datos del servidor (servidor.json) y aviso de versiones nuevas
 set(COMUN_DESCARGAS ON)
 set(COMUN_RED ON)
+set(COMUN_APPS_WIDGETS ON)   # actualizarse sola e instalar las otras apps (comun/apps)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../comun ${CMAKE_CURRENT_BINARY_DIR}/comun)
 
 add_executable(Windows-Manager WIN32
@@ -27,7 +28,7 @@ add_executable(Windows-Manager WIN32
     Recursos.qrc
     Windows-Manager.rc
 )
-target_link_libraries(Windows-Manager PRIVATE Qt6::Widgets Qt6::Network comun_descargas comun_red)
+target_link_libraries(Windows-Manager PRIVATE Qt6::Widgets Qt6::Network comun_descargas comun_red comun_apps_widgets)
 target_compile_definitions(Windows-Manager PRIVATE VERSION_PROGRAMA="${PROJECT_VERSION}")
 
 # Le entrega a ssh la contraseña del respaldo. De consola y sin dependencias
