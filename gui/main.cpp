@@ -2,6 +2,7 @@
 // con rsync. Los programas vienen en la carpeta «herramientas», al lado del .exe.
 
 #include "VentanaPrincipal.h"
+#include "Traducciones.h"
 
 #include <QApplication>
 #include <QIcon>
@@ -9,6 +10,7 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+    apps::cargarTraduccionesQt();   // botones estándar en español (comun/apps; Android y Windows no traen la traducción)
     QApplication::setApplicationName(QStringLiteral("Windows-Manager"));
     QApplication::setApplicationVersion(QStringLiteral(VERSION_PROGRAMA));
     QApplication::setStyle(QStringLiteral("Fusion"));
