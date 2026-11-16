@@ -36,3 +36,6 @@ log.txt
 
 # Lo compilado (APK, paquetes, .tar para Windows)
 /Salida/
+
+# La genera Preparar-herramientas.sh (228 MB)
+/herramientas/
