@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     apps::cargarTraduccionesQt();   // botones estándar en español (comun/apps; Android y Windows no traen la traducción)
     QApplication::setApplicationName(QStringLiteral("Windows-Manager"));
     QApplication::setApplicationVersion(QStringLiteral(VERSION_PROGRAMA));
-    tema::aplicar(app);             // tema oscuro común con el celeste del sitio (comun/ui)
+    tema::aplicar(app);             // tema común (claro u oscuro) con el celeste del sitio (comun/ui)
     QApplication::setWindowIcon(QIcon(QStringLiteral(":/Logo.png")));
 
     VentanaPrincipal ventana;

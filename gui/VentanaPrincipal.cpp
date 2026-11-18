@@ -1,4 +1,5 @@
 #include "VentanaPrincipal.h"
+#include <QHBoxLayout>
 #include "ui_VentanaPrincipal.h"
 
 #include "PanelApps.h"
@@ -32,10 +33,20 @@ VentanaPrincipal::VentanaPrincipal(QWidget *parent)
     ui->listaSecciones->setIconSize(QSize(18, 18));
     ui->etiquetaVersion->setProperty("secundario", true);
     ui->botonActualizarYtdlp->setIcon(tema::icono(QStringLiteral("actualizar")));
-    const tema::Colores &c = tema::colores();
-    ui->etiquetaAviso->setStyleSheet(QStringLiteral("QLabel { background: rgba(%1, %2, %3, 0.14); color: %4; border: 1px solid rgba(%1, %2, %3, 0.4);"
-                                                    " border-radius: 8px; padding: 8px 12px; }")
-                                         .arg(c.aviso.red()).arg(c.aviso.green()).arg(c.aviso.blue()).arg(c.texto.name()));
+    const auto estiloAviso = [this] {
+        const tema::Colores &c = tema::colores();
+        ui->etiquetaAviso->setStyleSheet(QStringLiteral("QLabel { background: rgba(%1, %2, %3, 0.14); color: %4; border: 1px solid rgba(%1, %2, %3, 0.4);"
+                                                        " border-radius: 8px; padding: 8px 12px; }")
+                                             .arg(c.aviso.red()).arg(c.aviso.green()).arg(c.aviso.blue()).arg(c.texto.name()));
+    };
+    estiloAviso();
+    tema::alCambiarModo(this, estiloAviso);
+    // Arriba a la derecha, al lado del título: modo claro / oscuro (se recuerda)
+    auto *encabezado = new QHBoxLayout;
+    ui->layoutContenido->removeWidget(ui->etiquetaTitulo);
+    encabezado->addWidget(ui->etiquetaTitulo, 1);
+    encabezado->addWidget(tema::botonModo(this));
+    ui->layoutContenido->insertLayout(0, encabezado);
     ui->etiquetaLogo->setPixmap(QPixmap(QStringLiteral(":/Logo.png")));
 
     // «Apps»: actualizar Windows-Manager e instalar las otras apps (comun/apps)
