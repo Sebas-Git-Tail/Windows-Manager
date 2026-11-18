@@ -2,6 +2,7 @@
 // con rsync. Los programas vienen en la carpeta «herramientas», al lado del .exe.
 
 #include "VentanaPrincipal.h"
+#include "Piezas.h"
 #include "Tema.h"
 #include "Traducciones.h"
 
@@ -18,6 +19,7 @@ int main(int argc, char *argv[])
     QApplication::setWindowIcon(QIcon(QStringLiteral(":/Logo.png")));
 
     VentanaPrincipal ventana;
+    tema::recordarVentana(&ventana);   // mismo tamaño (y maximizada o en pantalla completa) que la última vez
     ventana.show();
     return app.exec();
 }
