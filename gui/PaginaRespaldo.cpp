@@ -1,4 +1,5 @@
 #include "PaginaRespaldo.h"
+#include "Tema.h"
 #include "ui_PaginaRespaldo.h"
 
 #include "ConfigServidor.h"
@@ -73,7 +74,7 @@ PaginaRespaldo::PaginaRespaldo(QWidget *parent)
     connect(&proceso, &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {
         if (error != QProcess::FailedToStart)
             return;
-        ui->etiquetaEstado->setText(tr("× No se pudo ejecutar rsync: %1").arg(proceso.errorString()));
+        tema::mostrarEstado(ui->etiquetaEstado, tr("No se pudo ejecutar rsync: %1").arg(proceso.errorString()), tema::Estado::Error);
         trabajando = false;
         habilitarFormulario(true);
     });
@@ -188,24 +189,24 @@ void PaginaRespaldo::empezar()
     if (trabajando)
         return;
     if (persona().isEmpty()) {
-        ui->etiquetaEstado->setText(tr("Escribí de quién es la computadora: una palabra, con letras, números, punto o guion."));
+        tema::mostrarEstado(ui->etiquetaEstado, tr("Escribí de quién es la computadora: una palabra, con letras, números, punto o guion."));
         ui->editPersona->setFocus();
         return;
     }
     if (computadora().isEmpty()) {
-        ui->etiquetaEstado->setText(tr("Escribí un nombre para la computadora, sin barras y sin empezar con un punto."));
+        tema::mostrarEstado(ui->etiquetaEstado, tr("Escribí un nombre para la computadora, sin barras y sin empezar con un punto."));
         ui->editComputadora->setFocus();
         return;
     }
     contrasena = ui->editContrasena->text();
     if (contrasena.isEmpty()) {
-        ui->etiquetaEstado->setText(tr("Escribí la contraseña SSH del servidor."));
+        tema::mostrarEstado(ui->etiquetaEstado, tr("Escribí la contraseña SSH del servidor."));
         ui->editContrasena->setFocus();
         return;
     }
     // Con --delete, un origen que se ve vacío borraría todo el respaldo del servidor
     if (QDir::home().entryList(QDir::AllEntries | QDir::NoDotAndDotDot).isEmpty()) {
-        ui->etiquetaEstado->setText(tr("× No se pudo leer la carpeta personal."));
+        tema::mostrarEstado(ui->etiquetaEstado, tr("No se pudo leer la carpeta personal."), tema::Estado::Error);
         return;
     }
     ui->etiquetaEstado->clear();
@@ -225,7 +226,7 @@ void PaginaRespaldo::empezar()
     ui->etiquetaArchivo->clear();
     ui->barraProgreso->setValue(0);
     ui->barraProgreso->show();
-    ui->etiquetaEstado->setText(tr("Buscando el servidor…"));
+    tema::mostrarEstado(ui->etiquetaEstado, tr("Buscando el servidor…"));
     trabajando = true;
     habilitarFormulario(false);
     probarServidor(0);
@@ -235,8 +236,9 @@ void PaginaRespaldo::empezar()
 void PaginaRespaldo::probarServidor(int indice)
 {
     if (cancelado || indice >= servidores().size()) {
-        ui->etiquetaEstado->setText(cancelado ? tr("Respaldo cancelado.")
-                                              : tr("× No se encontró el servidor (ni en la red de casa ni por Tailscale)."));
+        tema::mostrarEstado(ui->etiquetaEstado, cancelado ? tr("Respaldo cancelado.")
+                                              : tr("No se encontró el servidor (ni en la red de casa ni por Tailscale)."),
+                            cancelado ? tema::Estado::Neutro : tema::Estado::Error);
         contrasena.clear();
         ui->barraProgreso->hide();
         trabajando = false;
@@ -275,7 +277,7 @@ void PaginaRespaldo::copiar(const QString &servidor)
     const bool simular = ui->checkSimular->isChecked();
     const QString origen = Herramientas::rutaMsys(QDir::homePath()) + u'/';
     anotar(tr("%1 → %2:%3").arg(QDir::toNativeSeparators(QDir::homePath()), servidor, rutaEnServidor()));
-    ui->etiquetaEstado->setText(simular ? tr("Simulando el respaldo (no cambia nada)…") : tr("Respaldando…"));
+    tema::mostrarEstado(ui->etiquetaEstado, simular ? tr("Simulando el respaldo (no cambia nada)…") : tr("Respaldando…"));
 
     // Huella fija: solo se conecta si del otro lado está el servidor de verdad (las huellas vienen
     // compiladas en el programa, ConfigServidor::huellasSsh). Antes se aceptaba cualquiera la primera
@@ -331,7 +333,7 @@ void PaginaRespaldo::cancelar()
     if (!trabajando)
         return;
     cancelado = true;
-    ui->etiquetaEstado->setText(tr("Cancelando…"));
+    tema::mostrarEstado(ui->etiquetaEstado, tr("Cancelando…"));
     Herramientas::cortar(proceso);
 }
 
@@ -392,30 +394,31 @@ void PaginaRespaldo::terminoProceso(int codigo, QProcess::ExitStatus estado)
                                 || errorConexion.contains(QStringLiteral("host key"), Qt::CaseInsensitive);
     const bool contrasenaMala = sinDatos && errorConexion.contains(QStringLiteral("Permission denied"));
     if (cancelado || estado == QProcess::CrashExit) {
-        ui->etiquetaEstado->setText(tr("Respaldo cancelado."));
+        tema::mostrarEstado(ui->etiquetaEstado, tr("Respaldo cancelado."));
     } else if (codigo == 0) {
         ui->barraProgreso->setValue(100);
-        ui->etiquetaEstado->setText(ui->checkSimular->isChecked() ? tr("✓ Simulación completada: no se cambió nada.")
-                                                                  : tr("✓ Respaldo completado."));
+        tema::mostrarEstado(ui->etiquetaEstado, ui->checkSimular->isChecked() ? tr("Simulación completada: no se cambió nada.")
+                                                                  : tr("Respaldo completado."), tema::Estado::Ok);
         if (ui->checkSimular->isChecked())
             mostrarResumen();
     } else if (codigo == CodigoIncompleto || codigo == CodigoDesaparecido) {
         // Archivos que no se pudieron leer o que desaparecieron durante la copia
-        ui->etiquetaEstado->setText(ui->checkSimular->isChecked()
+        tema::mostrarEstado(ui->etiquetaEstado, ui->checkSimular->isChecked()
             ? tr("Simulación completada, pero algunos archivos no se podrían copiar (ver los avisos).")
-            : tr("Terminó, pero algunos archivos no se pudieron copiar (ver los avisos)."));
+            : tr("Terminó, pero algunos archivos no se pudieron copiar (ver los avisos)."), tema::Estado::Aviso);
         if (ui->checkSimular->isChecked())
             mostrarResumen();
     } else if (huellaDistinta) {
         ui->barraProgreso->hide();
-        ui->etiquetaEstado->setText(tr("× Del otro lado contestó un equipo que no es el servidor (la huella no coincide). "
-                                       "No se mandó la contraseña. Si el servidor se reinstaló, hace falta una versión nueva del programa."));
+        tema::mostrarEstado(ui->etiquetaEstado, tr("Del otro lado contestó un equipo que no es el servidor (la huella no coincide). "
+                                       "No se mandó la contraseña. Si el servidor se reinstaló, hace falta una versión nueva del programa."),
+                            tema::Estado::Error);
     } else if (contrasenaMala) {
         ui->barraProgreso->hide();
-        ui->etiquetaEstado->setText(tr("× Contraseña incorrecta, volvé a escribirla."));
+        tema::mostrarEstado(ui->etiquetaEstado, tr("Contraseña incorrecta, volvé a escribirla."), tema::Estado::Error);
         ui->editContrasena->setFocus();
     } else {
-        ui->etiquetaEstado->setText(tr("× rsync terminó con errores (código %1). Revisá la conexión con el servidor y volvé a intentarlo.").arg(codigo));
+        tema::mostrarEstado(ui->etiquetaEstado, tr("rsync terminó con errores (código %1). Revisá la conexión con el servidor y volvé a intentarlo.").arg(codigo), tema::Estado::Error);
     }
 }
 

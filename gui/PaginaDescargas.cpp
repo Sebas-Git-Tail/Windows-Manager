@@ -1,4 +1,5 @@
 #include "PaginaDescargas.h"
+#include "Tema.h"
 #include "ui_PaginaDescargas.h"
 
 #include "DialogoPistas.h"
@@ -174,19 +175,19 @@ void PaginaDescargas::descargar()
             urls << linea.trimmed();
     }
     if (urls.isEmpty()) {
-        ui->etiquetaEstado->setText(tr("No se ingresó ninguna URL."));
+        tema::mostrarEstado(ui->etiquetaEstado, tr("No se ingresó ninguna URL."), tema::Estado::Aviso);
         return;
     }
     if (destino().isEmpty()) {
-        ui->etiquetaEstado->setText(tr("Elegí una carpeta de destino."));
+        tema::mostrarEstado(ui->etiquetaEstado, tr("Elegí una carpeta de destino."), tema::Estado::Aviso);
         return;
     }
     if (ui->checkCookies->isChecked() && navegadorCookies().isEmpty()) {
-        ui->etiquetaEstado->setText(tr("× Para usar cookies hace falta LibreWolf o Firefox con la sesión iniciada; las de Chrome y Edge no se pueden leer."));
+        tema::mostrarEstado(ui->etiquetaEstado, tr("Para usar cookies hace falta LibreWolf o Firefox con la sesión iniciada; las de Chrome y Edge no se pueden leer."), tema::Estado::Error);
         return;
     }
     if (!QDir().mkpath(destino())) {
-        ui->etiquetaEstado->setText(tr("× No se pudo crear la carpeta %1.").arg(destino()));
+        tema::mostrarEstado(ui->etiquetaEstado, tr("No se pudo crear la carpeta %1.").arg(destino()), tema::Estado::Error);
         return;
     }
     QDir(carpetaMiniaturas()).removeRecursively();
@@ -212,7 +213,7 @@ void PaginaDescargas::descargar()
     // YouTube cambia seguido y un yt-dlp viejo deja de funcionar
     if (Herramientas::ytDlpDesactualizado()) {
         actualizando = true;
-        ui->etiquetaEstado->setText(tr("Buscando actualizaciones de yt-dlp…"));
+        tema::mostrarEstado(ui->etiquetaEstado, tr("Buscando actualizaciones de yt-dlp…"));
         proceso.start(Herramientas::programa(QStringLiteral("yt-dlp.exe")), {QStringLiteral("--update")});
         return;
     }
@@ -247,7 +248,7 @@ void PaginaDescargas::siguienteConsulta()
     const QString url = urlsPedidas.value(indice);
     ++indice;
     ui->barraTotal->setValue(indice - 1);
-    ui->etiquetaEstado->setText(tr("Buscando calidades, subtítulos y pistas de audio (URL %1 de %2)…").arg(indice).arg(total));
+    tema::mostrarEstado(ui->etiquetaEstado, tr("Buscando calidades, subtítulos y pistas de audio (URL %1 de %2)…").arg(indice).arg(total));
     QStringList argumentos = Herramientas::argumentosYtDlp();
     argumentos << argumentosConsulta();
     if (ui->checkCookies->isChecked())
@@ -287,7 +288,7 @@ void PaginaDescargas::terminoConsulta(int codigo, QProcess::ExitStatus estado)
     if (oferta.vacia()) {
         anotar(tr("No hay calidades, subtítulos ni otras pistas de audio para elegir: se descarga como siempre."));
     } else {
-        ui->etiquetaEstado->setText(tr("Elegí la calidad, los códecs y qué subtítulos y pistas de audio incluir."));
+        tema::mostrarEstado(ui->etiquetaEstado, tr("Elegí la calidad, los códecs y qué subtítulos y pistas de audio incluir."));
         DialogoPistas dialogo(oferta.audios.values(), oferta.subtitulos.values(), oferta.formatos, oferta.codecsAudio, this);
         if (dialogo.abrir() != QDialog::Accepted) {
             cancelado = true;
@@ -315,7 +316,7 @@ void PaginaDescargas::siguienteUrl()
     QFile::remove(archivoRutas());
     ui->barraTotal->setValue(indice - 1);
     ui->barraArchivo->setValue(0);
-    ui->etiquetaEstado->setText(tr("URL %1 de %2: %3").arg(indice).arg(total).arg(url));
+    tema::mostrarEstado(ui->etiquetaEstado, tr("URL %1 de %2: %3").arg(indice).arg(total).arg(url));
 
     // Las opciones de Logica/Descargar.sh
     QStringList argumentos = Herramientas::argumentosYtDlp();
@@ -353,7 +354,7 @@ void PaginaDescargas::cancelar()
         return;
     cancelado = true;
     cola.clear();
-    ui->etiquetaEstado->setText(tr("Cancelando…"));
+    tema::mostrarEstado(ui->etiquetaEstado, tr("Cancelando…"));
     Herramientas::cortar(proceso);
 }
 
@@ -377,14 +378,14 @@ void PaginaDescargas::procesarLinea(const QString &linea)
         archivoActual = QFileInfo(linea.mid(prefijoDestino.size())).fileName();
         ultimoPorcentaje.clear();
         ui->barraArchivo->setValue(0);
-        ui->etiquetaEstado->setText(tr("Descargando %1").arg(archivoActual));
+        tema::mostrarEstado(ui->etiquetaEstado, tr("Descargando %1").arg(archivoActual));
     } else if (linea.startsWith(QStringLiteral("[download]"))) {
         const QRegularExpressionMatch coincidencia = porcentaje.match(linea);
         if (coincidencia.hasMatch() && coincidencia.captured(1) != ultimoPorcentaje) {
             ultimoPorcentaje = coincidencia.captured(1);
             ui->barraArchivo->setValue(ultimoPorcentaje.toInt());
             if (ultimoPorcentaje.toInt() >= 100)
-                ui->etiquetaEstado->setText(tr("Procesando %1 (metadatos y carátula)…").arg(archivoActual));
+                tema::mostrarEstado(ui->etiquetaEstado, tr("Procesando %1 (metadatos y carátula)…").arg(archivoActual));
         }
     } else if (linea.startsWith(QStringLiteral("ERROR: "))) {
         mensajeError = linea.mid(7);
@@ -460,13 +461,13 @@ void PaginaDescargas::finalizar()
 
     const bool musica = tipo == Tipo::Musica;
     if (cancelado)
-        ui->etiquetaEstado->setText(tr("Descarga cancelada."));
+        tema::mostrarEstado(ui->etiquetaEstado, tr("Descarga cancelada."));
     else if (fallidas > 0)
-        ui->etiquetaEstado->setText(tr("Terminado con errores: %1 descargado(s), %2 URL(s) fallaron.").arg(listas).arg(fallidas));
+        tema::mostrarEstado(ui->etiquetaEstado, tr("Terminado con errores: %1 descargado(s), %2 URL(s) fallaron.").arg(listas).arg(fallidas), tema::Estado::Aviso);
     else if (listas == 1)
-        ui->etiquetaEstado->setText(musica ? tr("✓ Listo: 1 canción descargada.") : tr("✓ Listo: 1 video descargado."));
+        tema::mostrarEstado(ui->etiquetaEstado, musica ? tr("Listo: 1 canción descargada.") : tr("Listo: 1 video descargado."), tema::Estado::Ok);
     else
-        ui->etiquetaEstado->setText((musica ? tr("✓ Listo: %1 canciones descargadas.") : tr("✓ Listo: %1 videos descargados.")).arg(listas));
+        tema::mostrarEstado(ui->etiquetaEstado, (musica ? tr("Listo: %1 canciones descargadas.") : tr("Listo: %1 videos descargados.")).arg(listas), tema::Estado::Ok);
 }
 
 void PaginaDescargas::ver()
@@ -482,7 +483,7 @@ void PaginaDescargas::ver()
     const std::wstring nativa = QDir::toNativeSeparators(ruta).toStdWString();
     const auto resultado = reinterpret_cast<INT_PTR>(ShellExecuteW(nullptr, L"openas", nativa.c_str(), nullptr, nullptr, SW_SHOWNORMAL));
     if (resultado <= 32)
-        ui->etiquetaEstado->setText(tr("× No se pudo abrir el archivo (error %1).").arg(resultado));
+        tema::mostrarEstado(ui->etiquetaEstado, tr("No se pudo abrir el archivo (error %1).").arg(resultado), tema::Estado::Error);
 }
 
 void PaginaDescargas::abrirCarpeta()

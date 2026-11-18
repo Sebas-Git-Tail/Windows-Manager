@@ -2,6 +2,8 @@
 #include "ui_VentanaPrincipal.h"
 
 #include "PanelApps.h"
+#include "Piezas.h"
+#include "Tema.h"
 #include "ConfigServidor.h"
 #include "Herramientas.h"
 #include "PaginaDescargas.h"
@@ -24,18 +26,26 @@ VentanaPrincipal::VentanaPrincipal(QWidget *parent)
 {
     ui->setupUi(this);
 
-    QFont fuente = ui->etiquetaTitulo->font();
-    fuente.setPointSizeF(fuente.pointSizeF() * 1.4);
-    fuente.setBold(true);
-    ui->etiquetaTitulo->setFont(fuente);
+    // Estilo común (comun/ui): título grande, menú lateral con íconos y avisos de color
+    ui->etiquetaTitulo->setProperty("titulo", true);
+    ui->listaSecciones->setProperty("lateral", true);
+    ui->listaSecciones->setIconSize(QSize(18, 18));
+    ui->etiquetaVersion->setProperty("secundario", true);
+    ui->botonActualizarYtdlp->setIcon(tema::icono(QStringLiteral("actualizar")));
+    const tema::Colores &c = tema::colores();
+    ui->etiquetaAviso->setStyleSheet(QStringLiteral("QLabel { background: rgba(%1, %2, %3, 0.14); color: %4; border: 1px solid rgba(%1, %2, %3, 0.4);"
+                                                    " border-radius: 8px; padding: 8px 12px; }")
+                                         .arg(c.aviso.red()).arg(c.aviso.green()).arg(c.aviso.blue()).arg(c.texto.name()));
     ui->etiquetaLogo->setPixmap(QPixmap(QStringLiteral(":/Logo.png")));
 
     // «Apps»: actualizar Windows-Manager e instalar las otras apps (comun/apps)
     auto *paginaApps = new apps::PanelApps(QStringLiteral("Windows-Manager"), this);
-    for (QWidget *pagina : {static_cast<QWidget *>(videos), static_cast<QWidget *>(musica), static_cast<QWidget *>(respaldo),
-                            static_cast<QWidget *>(paginaApps)}) {
+    const QList<QPair<QWidget *, QString>> paginas{{videos, QStringLiteral("video")}, {musica, QStringLiteral("musica")},
+                                                   {respaldo, QStringLiteral("respaldo")}, {paginaApps, QStringLiteral("paquete")}};
+    for (const auto &[pagina, icono] : paginas) {
         ui->paginas->addWidget(pagina);
-        ui->listaSecciones->addItem(pagina->windowTitle());
+        auto *item = new QListWidgetItem(tema::icono(icono, tema::colores().texto2), pagina->windowTitle(), ui->listaSecciones);
+        item->setSizeHint(QSize(0, 38));
     }
     connect(ui->listaSecciones, &QListWidget::currentRowChanged, this, [this](int fila) {
         ui->paginas->setCurrentIndex(fila);
@@ -50,7 +60,7 @@ VentanaPrincipal::VentanaPrincipal(QWidget *parent)
     ui->etiquetaAviso->hide();
     const QStringList faltan = Herramientas::faltantes();
     if (!faltan.isEmpty())
-        avisar(tr("× Faltan programas en la carpeta «herramientas»: %1").arg(faltan.join(QStringLiteral(", ")).toHtmlEscaped()));
+        avisar(tr("Faltan programas en la carpeta «herramientas»: %1").arg(faltan.join(QStringLiteral(", ")).toHtmlEscaped()));
 
     ui->etiquetaVersion->setText(tr("Versión %1").arg(QApplication::applicationVersion()));
     connect(ui->botonActualizarYtdlp, &QPushButton::clicked, this, &VentanaPrincipal::actualizarYtDlp);
@@ -74,7 +84,7 @@ void VentanaPrincipal::avisar(const QString &html)
 void VentanaPrincipal::actualizarYtDlp()
 {
     if (procesoYtDlp.state() != QProcess::NotRunning || videos->ocupada() || musica->ocupada()) {
-        avisar(tr("Esperá a que terminen las descargas para actualizar yt-dlp."));
+        tema::avisar(this, tr("Esperá a que terminen las descargas para actualizar yt-dlp."), tema::Estado::Aviso);
         return;
     }
     ui->botonActualizarYtdlp->setEnabled(false);
@@ -89,7 +99,7 @@ void VentanaPrincipal::actualizarYtDlp()
         if (estado == QProcess::NormalExit && codigo == 0) {
             Herramientas::marcarYtDlpActualizado();
             const QString ultima = salida.section(u'\n', -1).trimmed();
-            QMessageBox::information(this, windowTitle(), ultima.isEmpty() ? tr("yt-dlp está actualizado.") : ultima);
+            tema::avisar(this, ultima.isEmpty() ? tr("yt-dlp está actualizado.") : ultima, tema::Estado::Ok);
         } else {
             QMessageBox::warning(this, windowTitle(), tr("No se pudo actualizar yt-dlp:\n%1").arg(salida.right(600)));
         }

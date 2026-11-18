@@ -2,6 +2,7 @@
 // con rsync. Los programas vienen en la carpeta «herramientas», al lado del .exe.
 
 #include "VentanaPrincipal.h"
+#include "Tema.h"
 #include "Traducciones.h"
 
 #include <QApplication>
@@ -13,12 +14,8 @@ int main(int argc, char *argv[])
     apps::cargarTraduccionesQt();   // botones estándar en español (comun/apps; Android y Windows no traen la traducción)
     QApplication::setApplicationName(QStringLiteral("Windows-Manager"));
     QApplication::setApplicationVersion(QStringLiteral(VERSION_PROGRAMA));
-    QApplication::setStyle(QStringLiteral("Fusion"));
+    tema::aplicar(app);             // tema oscuro común con el celeste del sitio (comun/ui)
     QApplication::setWindowIcon(QIcon(QStringLiteral(":/Logo.png")));
-
-    // En Windows, Fusion rellena de azul la casilla desmarcada y parece que estuviera marcada
-    app.setStyleSheet(QStringLiteral("QCheckBox::indicator:unchecked { background: palette(base); "
-                                     "border: 1px solid palette(mid); width: 13px; height: 13px; }"));
 
     VentanaPrincipal ventana;
     ventana.show();
