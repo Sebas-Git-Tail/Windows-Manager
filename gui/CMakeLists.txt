@@ -2,7 +2,7 @@
 # Se compila con ..\Compilar-en-Windows.bat (Qt 6 y MinGW). Los .ui se editan con Qt Designer.
 
 cmake_minimum_required(VERSION 3.21)
-project(WindowsManager VERSION 1.3.0 LANGUAGES C CXX RC)
+project(WindowsManager VERSION 1.4.0 LANGUAGES C CXX RC)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
