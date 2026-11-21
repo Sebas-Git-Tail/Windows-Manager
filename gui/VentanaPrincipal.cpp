@@ -3,6 +3,7 @@
 #include "ui_VentanaPrincipal.h"
 
 #include "PanelApps.h"
+#include "VentanaNovedades.h"
 #include "Piezas.h"
 #include "Tema.h"
 #include "ConfigServidor.h"
@@ -45,6 +46,7 @@ VentanaPrincipal::VentanaPrincipal(QWidget *parent)
     auto *encabezado = new QHBoxLayout;
     ui->layoutContenido->removeWidget(ui->etiquetaTitulo);
     encabezado->addWidget(ui->etiquetaTitulo, 1);
+    encabezado->addWidget(soporte::botonNovedades(this));   // novedades e informe de fallas
     encabezado->addWidget(tema::botonModo(this));
     ui->layoutContenido->insertLayout(0, encabezado);
     ui->etiquetaLogo->setPixmap(QPixmap(QStringLiteral(":/Logo.png")));
@@ -81,6 +83,7 @@ VentanaPrincipal::VentanaPrincipal(QWidget *parent)
 
     // ¿Hay una versión nueva? (una vez por día): pregunta y la instala sola
     apps::avisarActualizaciones(this, QStringLiteral("Windows-Manager"));
+    soporte::novedadesAlAbrir(this);    // la primera vez que se abre una versión nueva: qué cambió
 }
 
 // Aviso arriba de la página (se suman si hay más de uno)

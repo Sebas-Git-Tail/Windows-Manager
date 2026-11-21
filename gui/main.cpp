@@ -2,6 +2,7 @@
 // con rsync. Los programas vienen en la carpeta «herramientas», al lado del .exe.
 
 #include "VentanaPrincipal.h"
+#include "Fallas.h"
 #include "Piezas.h"
 #include "Tema.h"
 #include "Traducciones.h"
@@ -17,6 +18,7 @@ int main(int argc, char *argv[])
     QApplication::setApplicationVersion(QStringLiteral(VERSION_PROGRAMA));
     tema::aplicar(app);             // tema común (claro u oscuro) con el celeste del sitio (comun/ui)
     QApplication::setWindowIcon(QIcon(QStringLiteral(":/Logo.png")));
+    soporte::iniciarFallas();       // si se cierra por una falla, manda un informe (comun/soporte)
 
     VentanaPrincipal ventana;
     tema::recordarVentana(&ventana);   // mismo tamaño (y maximizada o en pantalla completa) que la última vez
