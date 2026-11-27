@@ -297,7 +297,8 @@ void PaginaDescargas::remotoSiguienteArchivo()
                     [this, vuelta, miniatura, traerArchivo](int codigo) {
         if (vuelta != vueltaRemota)
             return;
-        if (cancelado) {
+        // remotoFallo no puede cortar la miniatura (cancela rutaEnCamino): si se perdió, no se trae el archivo
+        if (cancelado || estadoRemoto == u"perdido") {
             QFile::remove(miniatura);
             trayendo = false;
             remotoQuizasTerminar();
@@ -400,8 +401,11 @@ void PaginaDescargas::remotoCancelar()
 {
     porBajar.clear();
     temporizadorRemoto.stop();
-    if (!trabajoRemoto.isEmpty() && !terminado(estadoRemoto))
-        http::enviar(this, urlServidor(QStringLiteral("api/trabajos/%1/cancelar").arg(trabajoRemoto)), {}, [](int, const QByteArray &) {});
+    if (!trabajoRemoto.isEmpty() && !terminado(estadoRemoto)) {
+        ++cancelacionesPendientes;    // cancelarYEsperar la espera antes de cerrar
+        http::enviar(this, urlServidor(QStringLiteral("api/trabajos/%1/cancelar").arg(trabajoRemoto)), {},
+                     [this](int, const QByteArray &) { --cancelacionesPendientes; }, 5);
+    }
     estadoRemoto = QStringLiteral("cancelado");
     if (trayendo) {
         http::cancelarDescarga(rutaEnCamino);    // su respuesta termina la descarga

@@ -55,6 +55,7 @@ private:
     void correr(Paso paso);
     void terminar();
     void terminoRespaldo(respaldo::Final final, int codigo);
+    void avisarLimpiezaCancelada();
     void terminoRestaurar(respaldo::Final final, int codigo);
     void terminoVersiones(respaldo::Final final, int codigo);
     bool mostrarError(respaldo::Final final, int codigo, const QString &que);

@@ -658,6 +658,8 @@ void PaginaRespaldo::terminoProceso(int codigo, QProcess::ExitStatus estado)
         viejas = final == Final::Ok ? respaldo::anterioresViejas(respaldo::fechasDeListado(lector.listado().join(u'\n')),
                                                                   QDateTime::currentDateTime())
                                     : QStringList();
+        if (cancelado)
+            avisarLimpiezaCancelada();
         if (viejas.isEmpty() || cancelado)
             terminar();
         else
@@ -669,12 +671,21 @@ void PaginaRespaldo::terminoProceso(int codigo, QProcess::ExitStatus estado)
             anotar(tr("Se borraron %n versión(es) anterior(es) de más de %1 días.", nullptr, int(viejas.size())).arg(respaldo::DiasAnteriores));
         else if (!cancelado)
             anotar(tr("No se pudieron borrar las versiones anteriores de más de %1 días (código %2).").arg(respaldo::DiasAnteriores).arg(codigo));
+        else
+            avisarLimpiezaCancelada();
         terminar();
         break;
     case Paso::Ninguno:
         terminar();
         break;
     }
+}
+
+// Cancelar ya había puesto «Cancelando…»: que no parezca que se canceló el respaldo, que terminó antes
+void PaginaRespaldo::avisarLimpiezaCancelada()
+{
+    tema::mostrarEstado(ui->etiquetaEstado, tr("El respaldo terminó; se canceló el borrado de las versiones anteriores de más de %1 días.")
+                                                .arg(respaldo::DiasAnteriores), tema::Estado::Aviso);
 }
 
 void PaginaRespaldo::terminoRespaldo(Final final, int codigo)

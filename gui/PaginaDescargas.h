@@ -80,6 +80,7 @@ private:
     void cargarDescargados();
     void guardarDescargados();
     void agregarDescargado(const QString &nombre, const QString &ruta, const QString &miniatura);
+    void borrarMiniaturaSiSobra(const QString &miniatura);    // la de un item que ya se sacó de la lista
 
     // Descargas en masa
     void siguienteArchivo();
@@ -143,6 +144,7 @@ private:
     int hechasRemotas = 0;
     int fallosSeguidos = 0;
     int traidosFallidos = 0;
+    int cancelacionesPendientes = 0;    // pedidos de cancelar al servidor sin respuesta todavía
     QTimer temporizadorRemoto;      // cada cuánto se pregunta cómo va
     QTimer temporizadorTransferencia;
 };

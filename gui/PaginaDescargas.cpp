@@ -9,6 +9,7 @@
 #include <QClipboard>
 #include <QDesktopServices>
 #include <QDir>
+#include <QEventLoop>
 #include <QFile>
 #include <QFileDialog>
 #include <QFileIconProvider>
@@ -171,6 +172,22 @@ void PaginaDescargas::cancelarYEsperar()
 {
     cancelar();
     proceso.waitForFinished(5000);
+    // Con el servidor, el pedido de cancelar sale recién con el bucle de eventos: si la ventana se cierra
+    // antes, el servidor seguiría bajando. Se espera la respuesta un rato.
+    if (cancelacionesPendientes > 0) {
+        QEventLoop espera;
+        QTimer limite;
+        limite.setSingleShot(true);
+        connect(&limite, &QTimer::timeout, &espera, &QEventLoop::quit);
+        QTimer mirar;
+        connect(&mirar, &QTimer::timeout, &espera, [this, &espera] {
+            if (cancelacionesPendientes <= 0)
+                espera.quit();
+        });
+        limite.start(5000);
+        mirar.start(50);
+        espera.exec(QEventLoop::ExcludeUserInputEvents);
+    }
 }
 
 // Las cookies no hacen falta (ni se pueden usar) si baja el servidor, que usa las suyas
@@ -304,9 +321,8 @@ void PaginaDescargas::guardarDescargados()
     while (ui->listaVideos->count() > MaximoEnLista) {
         QListWidgetItem *viejo = ui->listaVideos->takeItem(0);
         const QString miniatura = viejo->data(RolMiniatura).toString();
-        if (miniatura.startsWith(carpetaMiniaturasGuardadas()))
-            QFile::remove(miniatura);
         delete viejo;
+        borrarMiniaturaSiSobra(miniatura);
     }
     QJsonArray lista;
     for (int i = 0; i < ui->listaVideos->count(); ++i) {
@@ -320,6 +336,19 @@ void PaginaDescargas::guardarDescargados()
         archivo.write(QJsonDocument(lista).toJson(QJsonDocument::Compact));
         archivo.commit();
     }
+}
+
+// Solo la copia propia de la app (nunca algo del usuario), y si ningún otro de la lista la usa: los
+// archivos de una misma playlist comparten la miniatura
+void PaginaDescargas::borrarMiniaturaSiSobra(const QString &miniatura)
+{
+    if (miniatura.isEmpty() || !miniatura.startsWith(carpetaMiniaturasGuardadas()))
+        return;
+    for (int i = 0; i < ui->listaVideos->count(); ++i) {
+        if (ui->listaVideos->item(i)->data(RolMiniatura).toString() == miniatura)
+            return;
+    }
+    QFile::remove(miniatura);
 }
 
 void PaginaDescargas::agregarDescargado(const QString &nombre, const QString &ruta, const QString &miniatura)
@@ -739,6 +768,7 @@ void PaginaDescargas::terminoArchivo()
         for (int intento = 0; intento < 5 && !guardado; ++intento) {
             const QString final = carpeta.filePath(descargas::nombreLibre(carpeta, archivoActual));
             if (parcial->rename(final)) {
+                parcial->setAutoRemove(false);    // rename no lo apaga: al borrar «parcial» se borraría el archivo ya guardado
                 parcial->close();
                 agregarDescargado(QFileInfo(final).fileName(), final, {});
                 ++listas;
@@ -817,9 +847,8 @@ void PaginaDescargas::moverAPapelera()
     QFile archivo(item->data(RolRuta).toString());
     if (archivo.moveToTrash() || !archivo.exists()) {
         const QString miniatura = item->data(RolMiniatura).toString();
-        if (miniatura.startsWith(carpetaMiniaturasGuardadas()))
-            QFile::remove(miniatura);    // la copia propia de la app, no algo del usuario
         delete item;
+        borrarMiniaturaSiSobra(miniatura);
         guardarDescargados();
     } else {
         anotar(tr("No se pudo mover a la papelera: %1").arg(archivo.fileName()));
