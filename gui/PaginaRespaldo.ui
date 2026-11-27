@@ -9,26 +9,30 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="grupoPersona">
-     <property name="title"><string>¿De quién es esta computadora?</string></property>
-     <layout class="QVBoxLayout" name="layoutPersona">
-      <item>
-       <widget class="QLineEdit" name="editPersona">
-        <property name="placeholderText"><string>Tu nombre, en una palabra</string></property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="grupoComputadora">
-     <property name="title"><string>Nombre de la computadora</string></property>
-     <layout class="QVBoxLayout" name="layoutComputadora">
-      <item>
-       <widget class="QLineEdit" name="editComputadora"/>
-      </item>
-     </layout>
-    </widget>
+    <layout class="QHBoxLayout" name="layoutNombres">
+     <item>
+      <widget class="QGroupBox" name="grupoPersona">
+       <property name="title"><string>¿De quién es esta computadora?</string></property>
+       <layout class="QVBoxLayout" name="layoutPersona">
+        <item>
+         <widget class="QLineEdit" name="editPersona">
+          <property name="placeholderText"><string>Tu nombre, en una palabra</string></property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="grupoComputadora">
+       <property name="title"><string>Nombre de la computadora</string></property>
+       <layout class="QVBoxLayout" name="layoutComputadora">
+        <item>
+         <widget class="QLineEdit" name="editComputadora"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="QGroupBox" name="grupoContrasena">
@@ -43,16 +47,160 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="checkSimular">
-     <property name="text"><string>Solo simular (no copia ni borra nada)</string></property>
+    <widget class="QTabWidget" name="pestanas">
+     <widget class="QWidget" name="pestanaRespaldar">
+      <attribute name="title"><string>Respaldar</string></attribute>
+      <layout class="QVBoxLayout" name="layoutRespaldar">
+       <item>
+        <widget class="QLabel" name="etiquetaUltimo">
+         <property name="wordWrap"><bool>true</bool></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkSimular">
+         <property name="text"><string>Solo simular (no copia ni borra nada)</string></property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="layoutBotonesRespaldar">
+         <item>
+          <widget class="QPushButton" name="botonEmpezar"><property name="primario" stdset="0"><bool>true</bool></property>
+           <property name="text"><string>Empezar respaldo</string></property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="espacioRespaldar">
+           <property name="orientation"><enum>Qt::Orientation::Horizontal</enum></property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="espacioRespaldarAbajo">
+         <property name="orientation"><enum>Qt::Orientation::Vertical</enum></property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="pestanaRestaurar">
+      <attribute name="title"><string>Restaurar</string></attribute>
+      <layout class="QVBoxLayout" name="layoutRestaurar">
+       <item>
+        <widget class="QLabel" name="etiquetaRestaurar">
+         <property name="wordWrap"><bool>true</bool></property>
+         <property name="text"><string>Trae del servidor a esta computadora todo el respaldo, una carpeta o un archivo. No borra nada de la computadora.</string></property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="layoutOrigen" stretch="0,1,0">
+         <item>
+          <widget class="QLabel" name="etiquetaOrigen">
+           <property name="text"><string>Desde:</string></property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboOrigen"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="botonVersiones">
+           <property name="text"><string>Buscar versiones anteriores</string></property>
+           <property name="toolTip"><string>Se conecta al servidor (con la contraseña de arriba) y trae la lista de fechas que tienen lo que se borró o cambió en cada respaldo.</string></property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="layoutQue" stretch="0,1,0,0">
+         <item>
+          <widget class="QLabel" name="etiquetaQue">
+           <property name="text"><string>Qué:</string></property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="editRestaurar">
+           <property name="placeholderText"><string>Todo (o una carpeta o archivo de tu carpeta personal, ej.: Documentos\Fotos)</string></property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="botonRestaurarCarpeta">
+           <property name="text"><string>Carpeta…</string></property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="botonRestaurarArchivo">
+           <property name="text"><string>Archivo…</string></property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkReemplazar">
+         <property name="text"><string>Reemplazar los archivos que ya están en la computadora</string></property>
+         <property name="toolTip"><string>Sin marcar, solo se traen los que faltan. Marcado, se traen todos y lo que había queda guardado aparte.</string></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkSimularRestaurar">
+         <property name="text"><string>Solo simular (no trae nada)</string></property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="layoutBotonesRestaurar">
+         <item>
+          <widget class="QPushButton" name="botonRestaurar"><property name="primario" stdset="0"><bool>true</bool></property>
+           <property name="text"><string>Restaurar…</string></property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="espacioRestaurar">
+           <property name="orientation"><enum>Qt::Orientation::Horizontal</enum></property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="pestanaExclusiones">
+      <attribute name="title"><string>Qué no se copia</string></attribute>
+      <layout class="QVBoxLayout" name="layoutExclusiones">
+       <item>
+        <widget class="QLabel" name="etiquetaExclusiones">
+         <property name="wordWrap"><bool>true</bool></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="listaExclusiones">
+         <property name="maximumHeight"><number>110</number></property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="layoutBotonesExclusiones">
+         <item>
+          <widget class="QPushButton" name="botonAgregarExclusion">
+           <property name="text"><string>Agregar carpeta…</string></property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="botonQuitarExclusion">
+           <property name="enabled"><bool>false</bool></property>
+           <property name="text"><string>Quitar</string></property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="espacioExclusiones">
+           <property name="orientation"><enum>Qt::Orientation::Horizontal</enum></property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="layoutBotones">
+    <layout class="QHBoxLayout" name="layoutProgreso" stretch="1,0">
      <item>
-      <widget class="QPushButton" name="botonEmpezar"><property name="primario" stdset="0"><bool>true</bool></property>
-       <property name="text"><string>Empezar respaldo</string></property>
-      </widget>
+      <widget class="QProgressBar" name="barraProgreso"/>
      </item>
      <item>
       <widget class="QPushButton" name="botonCancelar">
@@ -61,9 +209,6 @@
       </widget>
      </item>
     </layout>
-   </item>
-   <item>
-    <widget class="QProgressBar" name="barraProgreso"/>
    </item>
    <item>
     <widget class="QLabel" name="etiquetaArchivo"/>

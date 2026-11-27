@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PaginaProgramas</class>
+ <widget class="QWidget" name="PaginaProgramas">
+  <layout class="QVBoxLayout" name="layoutPagina">
+   <item>
+    <widget class="QLabel" name="etiquetaDescripcion">
+     <property name="wordWrap"><bool>true</bool></property>
+     <property name="text"><string>Buscá, instalá y actualizá programas con winget, el instalador de programas de Windows. Algunos programas piden permiso de administrador al instalarse.</string></property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="grupoFalta" native="true">
+     <layout class="QVBoxLayout" name="layoutFalta">
+      <property name="leftMargin"><number>0</number></property>
+      <property name="rightMargin"><number>0</number></property>
+      <item>
+       <widget class="QLabel" name="etiquetaFalta">
+        <property name="wordWrap"><bool>true</bool></property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="layoutBotonesFalta">
+        <item>
+         <widget class="QPushButton" name="botonTienda"><property name="primario" stdset="0"><bool>true</bool></property>
+          <property name="text"><string>Conseguir winget (Instalador de aplicación)</string></property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="botonRevisar">
+          <property name="text"><string>Ya lo instalé</string></property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="espacioFalta">
+          <property name="orientation"><enum>Qt::Orientation::Horizontal</enum></property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="grupoWinget" native="true">
+     <layout class="QVBoxLayout" name="layoutWinget">
+      <property name="leftMargin"><number>0</number></property>
+      <property name="topMargin"><number>0</number></property>
+      <property name="rightMargin"><number>0</number></property>
+      <property name="bottomMargin"><number>0</number></property>
+      <item>
+       <layout class="QHBoxLayout" name="layoutBuscar" stretch="1,0,0">
+        <item>
+         <widget class="QLineEdit" name="editBuscar">
+          <property name="placeholderText"><string>Nombre del programa, ej.: VLC</string></property>
+          <property name="clearButtonEnabled"><bool>true</bool></property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="botonBuscar">
+          <property name="text"><string>Buscar</string></property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="botonActualizables">
+          <property name="text"><string>Ver actualizables</string></property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QTreeWidget" name="arbolPaquetes">
+        <property name="rootIsDecorated"><bool>false</bool></property>
+        <property name="uniformRowHeights"><bool>true</bool></property>
+        <property name="alternatingRowColors"><bool>true</bool></property>
+        <column><property name="text"><string>Nombre</string></property></column>
+        <column><property name="text"><string>Id</string></property></column>
+        <column><property name="text"><string>Versión</string></property></column>
+        <column><property name="text"><string>Disponible</string></property></column>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="layoutAcciones">
+        <item>
+         <widget class="QPushButton" name="botonInstalar"><property name="primario" stdset="0"><bool>true</bool></property>
+          <property name="enabled"><bool>false</bool></property>
+          <property name="text"><string>Instalar</string></property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="botonActualizar">
+          <property name="enabled"><bool>false</bool></property>
+          <property name="text"><string>Actualizar el elegido</string></property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="botonActualizarTodo">
+          <property name="enabled"><bool>false</bool></property>
+          <property name="text"><string>Actualizar todo</string></property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="espacioAcciones">
+          <property name="orientation"><enum>Qt::Orientation::Horizontal</enum></property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="botonCancelar">
+          <property name="enabled"><bool>false</bool></property>
+          <property name="text"><string>Cancelar</string></property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="etiquetaEstado">
+     <property name="wordWrap"><bool>true</bool></property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPlainTextEdit" name="registro">
+     <property name="readOnly"><bool>true</bool></property>
+     <property name="placeholderText"><string>Lo que va diciendo winget</string></property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

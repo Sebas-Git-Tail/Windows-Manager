@@ -1,4 +1,6 @@
-# Compila Windows-Manager con Qt 6 y MinGW en cada push (en un Windows de GitHub).
+# En cada push: corre las pruebas de la lógica en Linux y compila Windows-Manager con Qt 6 y MinGW en un
+# Windows de GitHub. El artefacto «Windows-Manager» es la carpeta armada con windeployqt, SIN la carpeta
+# «herramientas» (yt-dlp, ffmpeg, rsync…, 228 MB): esa la arma Preparar-herramientas.sh y la suma el instalador.
 name: Compilar
 
 on:
@@ -6,6 +8,19 @@ on:
   pull_request:
 
 jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - name: Dependencias
+        run: pacman -Syu --noconfirm --needed git cmake ninja gcc qt6-base
+      - uses: actions/checkout@v4
+      - name: Pruebas (tests/)
+        run: |
+          cmake -S gui -B build-pruebas -G Ninja -DWM_PRUEBAS=ON
+          cmake --build build-pruebas
+          QT_QPA_PLATFORM=offscreen ctest --test-dir build-pruebas --output-on-failure
+
   windows:
     runs-on: windows-latest
     steps:
@@ -25,3 +40,17 @@ jobs:
           export PATH="$IQTA_TOOLS/mingw1310_64/bin:$PATH"
           cmake -S gui -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR"
           cmake --build build
+      - name: Armar la carpeta (windeployqt)
+        shell: bash
+        run: |
+          export PATH="$IQTA_TOOLS/mingw1310_64/bin:$QT_ROOT_DIR/bin:$PATH"
+          mkdir -p Windows-Manager/herramientas
+          cp build/Windows-Manager.exe Windows-Manager/
+          cp build/askpass.exe Windows-Manager/herramientas/
+          windeployqt --release --no-translations --no-system-d3d-compiler --no-opengl-sw Windows-Manager/Windows-Manager.exe
+      - name: Subir el artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-Manager
+          path: Windows-Manager/
+          retention-days: 14

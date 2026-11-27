@@ -9,6 +9,7 @@
 #include "ConfigServidor.h"
 #include "Herramientas.h"
 #include "PaginaDescargas.h"
+#include "PaginaProgramas.h"
 #include "PaginaRespaldo.h"
 
 #include <QApplication>
@@ -24,7 +25,9 @@ VentanaPrincipal::VentanaPrincipal(QWidget *parent)
     : QWidget(parent), ui(new Ui::VentanaPrincipal),
       videos(new PaginaDescargas(PaginaDescargas::Tipo::Videos, this)),
       musica(new PaginaDescargas(PaginaDescargas::Tipo::Musica, this)),
-      respaldo(new PaginaRespaldo(this))
+      archivos(new PaginaDescargas(PaginaDescargas::Tipo::Archivos, this)),
+      respaldo(new PaginaRespaldo(this)),
+      programas(new PaginaProgramas(this))
 {
     ui->setupUi(this);
 
@@ -54,7 +57,8 @@ VentanaPrincipal::VentanaPrincipal(QWidget *parent)
     // «Apps»: actualizar Windows-Manager e instalar las otras apps (comun/apps)
     auto *paginaApps = new apps::PanelApps(QStringLiteral("Windows-Manager"), this);
     const QList<QPair<QWidget *, QString>> paginas{{videos, QStringLiteral("video")}, {musica, QStringLiteral("musica")},
-                                                   {respaldo, QStringLiteral("respaldo")}, {paginaApps, QStringLiteral("paquete")}};
+                                                   {archivos, QStringLiteral("descargar")}, {respaldo, QStringLiteral("respaldo")},
+                                                   {programas, QStringLiteral("apps")}, {paginaApps, QStringLiteral("paquete")}};
     for (const auto &[pagina, icono] : paginas) {
         ui->paginas->addWidget(pagina);
         auto *item = new QListWidgetItem(tema::icono(icono, tema::colores().texto2), pagina->windowTitle(), ui->listaSecciones);
@@ -68,7 +72,9 @@ VentanaPrincipal::VentanaPrincipal(QWidget *parent)
 
     connect(videos, &PaginaDescargas::ocupacionCambiada, this, &VentanaPrincipal::actualizarEnergia);
     connect(musica, &PaginaDescargas::ocupacionCambiada, this, &VentanaPrincipal::actualizarEnergia);
+    connect(archivos, &PaginaDescargas::ocupacionCambiada, this, &VentanaPrincipal::actualizarEnergia);
     connect(respaldo, &PaginaRespaldo::ocupacionCambiada, this, &VentanaPrincipal::actualizarEnergia);
+    connect(programas, &PaginaProgramas::ocupacionCambiada, this, &VentanaPrincipal::actualizarEnergia);
 
     ui->etiquetaAviso->hide();
     const QStringList faltan = Herramientas::faltantes();
@@ -128,7 +134,7 @@ VentanaPrincipal::~VentanaPrincipal()
 
 bool VentanaPrincipal::hayTarea() const
 {
-    return videos->ocupada() || musica->ocupada() || respaldo->ocupada();
+    return videos->ocupada() || musica->ocupada() || archivos->ocupada() || respaldo->ocupada() || programas->ocupada();
 }
 
 // Que la computadora no se suspenda en medio de una descarga o un respaldo
@@ -140,7 +146,7 @@ void VentanaPrincipal::actualizarEnergia()
 void VentanaPrincipal::closeEvent(QCloseEvent *evento)
 {
     if (hayTarea()) {
-        QMessageBox caja(QMessageBox::Question, windowTitle(), tr("Hay una descarga o un respaldo en curso. ¿Cancelarlo y salir?"), QMessageBox::NoButton, this);
+        QMessageBox caja(QMessageBox::Question, windowTitle(), tr("Hay una descarga, un respaldo o una instalación en curso. ¿Cancelarlo y salir?"), QMessageBox::NoButton, this);
         const QPushButton *salir = caja.addButton(tr("Cancelar y salir"), QMessageBox::AcceptRole);
         caja.setDefaultButton(caja.addButton(tr("Seguir"), QMessageBox::RejectRole));
         caja.exec();
@@ -150,7 +156,9 @@ void VentanaPrincipal::closeEvent(QCloseEvent *evento)
         }
         videos->cancelarYEsperar();
         musica->cancelarYEsperar();
+        archivos->cancelarYEsperar();
         respaldo->cancelarYEsperar();
+        programas->cancelarYEsperar();
     }
     evento->accept();
 }

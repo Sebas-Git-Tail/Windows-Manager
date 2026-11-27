@@ -7,6 +7,7 @@
 
 namespace Ui { class VentanaPrincipal; }
 class PaginaDescargas;
+class PaginaProgramas;
 class PaginaRespaldo;
 
 class VentanaPrincipal : public QWidget
@@ -29,6 +30,8 @@ private:
     Ui::VentanaPrincipal *ui;
     PaginaDescargas *videos;
     PaginaDescargas *musica;
+    PaginaDescargas *archivos;
     PaginaRespaldo *respaldo;
+    PaginaProgramas *programas;
     QProcess procesoYtDlp;
 };

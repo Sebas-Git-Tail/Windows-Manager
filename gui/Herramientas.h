@@ -14,6 +14,7 @@ QString programa(const QString &nombre);    // ruta de herramientas/<nombre>
 QStringList faltantes();                    // los programas que no están en la carpeta
 QProcessEnvironment ambiente();
 QString datos();                            // %LOCALAPPDATA%/Windows-Manager
+QString archivoAjustes();                   // datos()/Windows-Manager.ini (QSettings, formato INI)
 QString temporal();
 
 // rsync y ssh son de MSYS2: las rutas van como /cygdrive/c/Users/... («C:» sería un host remoto)

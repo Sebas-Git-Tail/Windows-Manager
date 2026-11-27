@@ -97,8 +97,40 @@
            </widget>
           </item>
           <item>
+           <widget class="QCheckBox" name="checkServidor">
+            <property name="text"><string>Bajar con el servidor</string></property>
+            <property name="toolTip"><string>El servidor de casa baja los videos con sus cookies (sirve cuando YouTube pide iniciar sesión) y después esta computadora trae los archivos terminados.</string></property>
+           </widget>
+          </item>
+          <item>
            <widget class="QCheckBox" name="checkCookies">
-            <property name="text"><string>Usar cookies del navegador (LibreWolf o Firefox)</string></property>
+            <property name="text"><string>Usar cookies (de LibreWolf, Firefox o un archivo cookies.txt)</string></property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="filaCookies" native="true">
+            <layout class="QHBoxLayout" name="layoutCookies" stretch="1,0,0">
+             <property name="leftMargin"><number>24</number></property>
+             <property name="topMargin"><number>0</number></property>
+             <property name="rightMargin"><number>0</number></property>
+             <property name="bottomMargin"><number>0</number></property>
+             <item>
+              <widget class="QLineEdit" name="editCookies">
+               <property name="readOnly"><bool>true</bool></property>
+               <property name="placeholderText"><string>Del navegador (LibreWolf o Firefox con la sesión iniciada)</string></property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="botonElegirCookies">
+               <property name="text"><string>Archivo cookies.txt…</string></property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="botonQuitarCookies">
+               <property name="text"><string>Usar el navegador</string></property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
           <item>

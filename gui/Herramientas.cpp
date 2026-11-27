@@ -33,6 +33,11 @@ QString datos()
     return carpeta;
 }
 
+QString archivoAjustes()
+{
+    return QDir(datos()).filePath(QStringLiteral("Windows-Manager.ini"));
+}
+
 QString temporal()
 {
     const QString carpeta = QDir(QDir::tempPath()).filePath(QStringLiteral("Windows-Manager"));
@@ -51,7 +56,9 @@ QProcessEnvironment ambiente()
 
 QString rutaMsys(const QString &ruta)
 {
-    QString limpia = QDir::fromNativeSeparators(ruta);
+    // Las barras se cambian a mano (QDir::fromNativeSeparators no lo hace fuera de Windows, y así se puede probar en Linux)
+    QString limpia = ruta;
+    limpia.replace(u'\\', u'/');
     if (limpia.size() >= 2 && limpia.at(1) == u':')
         limpia = QStringLiteral("/cygdrive/") + limpia.left(1).toLower() + limpia.mid(2);
     return limpia;
